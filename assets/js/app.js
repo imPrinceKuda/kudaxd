@@ -319,29 +319,12 @@
   function setupCursor() {
     if (!matchMedia('(pointer: fine)').matches) return;
     const pointer = document.querySelector('.cursor-pointer');
-    const bubble = document.querySelector('.cursor-bubble');
-    if (!pointer || !bubble) return;
-
-    let x = innerWidth / 2;
-    let y = innerHeight / 2;
-    let bx = x;
-    let by = y;
+    if (!pointer) return;
 
     addEventListener('mousemove', e => {
-      x = e.clientX;
-      y = e.clientY;
-      pointer.style.transform = `translate(${x - 3}px, ${y - 2}px)`;
+      pointer.style.transform = `translate(${e.clientX - 4}px, ${e.clientY - 3}px)`;
       document.body.classList.add('cursor-ready');
     }, { passive: true });
-
-    function followBubble() {
-      bx += (x - bx) * .24;
-      by += (y - by) * .24;
-      const scale = document.body.classList.contains('cursor-hover') ? 1 : .3;
-      bubble.style.transform = `translate(${bx}px, ${by}px) translate(-50%, -50%) scale(${scale})`;
-      requestAnimationFrame(followBubble);
-    }
-    requestAnimationFrame(followBubble);
 
     document.addEventListener('pointerover', e => {
       if (e.target.closest('a, button, [role="button"]')) document.body.classList.add('cursor-hover');

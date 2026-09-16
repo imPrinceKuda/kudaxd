@@ -550,45 +550,43 @@ footer a:hover { color: white; }
 }
 .modal-close:hover { transform: scale(1.08); }
 
-.cursor-pointer,
-.cursor-bubble {
+.cursor-pointer {
   position: fixed;
   z-index: 9999;
   top: 0;
   left: 0;
+  width: 38px;
+  height: 44px;
   pointer-events: none;
   opacity: 0;
-}
-.cursor-pointer {
-  width: 31px;
-  height: 39px;
-  filter: drop-shadow(0 2px 3px rgba(5,56,92,.32));
   will-change: transform;
   transition: opacity .12s ease, filter .12s ease;
+  filter: drop-shadow(0 2px 3px rgba(5,56,92,.24));
 }
-.cursor-pointer svg { width: 100%; height: 100%; display: block; overflow: visible; }
-.cursor-pointer path {
-  fill: #fff;
-  stroke: #7bd7ff;
-  stroke-width: 2.15;
+.cursor-pointer svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.cursor-arrow { opacity: 1; transform: translate(0,0) scale(1); }
+.cursor-hand { opacity: 0; transform: translate(-1px, -1px) scale(.94); }
+.cursor-arrow path,
+.cursor-hand path {
+  fill: #8fdfff;
+  stroke: #f8fdff;
+  stroke-width: 2.2;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
-.cursor-bubble {
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(255,255,255,.68);
-  border-radius: 50%;
-  background: rgba(105,206,255,.18);
-  box-shadow: 0 0 0 5px rgba(106,207,255,.08);
-  transform: translate(-50%,-50%) scale(.3);
-  backdrop-filter: blur(2px);
-  transition: opacity .14s ease, transform .17s cubic-bezier(.2,.8,.2,1);
-  will-change: transform;
-}
+.cursor-hand path { fill: #a9e8ff; }
 body.cursor-ready .cursor-pointer { opacity: 1; }
-body.cursor-hover .cursor-pointer { filter: drop-shadow(0 3px 4px rgba(6,62,100,.34)); }
-body.cursor-ready.cursor-hover .cursor-bubble { opacity: 1; }
+body.cursor-hover .cursor-pointer { filter: drop-shadow(0 3px 4px rgba(6,62,100,.28)); }
+body.cursor-hover .cursor-arrow { opacity: 0; }
+body.cursor-hover .cursor-hand { opacity: 1; }
+
 
 [data-reveal] {
   opacity: 0;
@@ -632,7 +630,7 @@ body.cursor-ready.cursor-hover .cursor-bubble { opacity: 1; }
 }
 
 @media (pointer: coarse) {
-  .cursor-pointer, .cursor-bubble { display: none !important; }
+  .cursor-pointer { display: none !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
