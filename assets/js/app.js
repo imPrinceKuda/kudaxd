@@ -15,18 +15,17 @@
     "cKCfN6gZs6o":"16K+", "kkLRsBaXCLA":"video"
   };
 
-  // Verified uploads tied to the @ilyKuda channel. View counts are refreshed in-browser.
   const shorts = [
-    {
-      id: "ipXjyrEI_gw",
-      title: "She Built Her Base in the Void on my Minecraft Server?!",
-      fallbackViews: "views"
-    },
-    {
-      id: "OEWvfOeaqxE",
-      title: "FernSMP Short",
-      fallbackViews: "views"
-    }
+    { id: "q0VE8X7T3gs", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "3fV6pUSxek4", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "FuFBHCHBmHs", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "62Q4EV_qT6Y", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "k4xqarfLI_g", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "Dyw97LFGHXc", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "wH29xbbmIFU", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "BeyY4vdPc1U", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "X27OrL25QuA", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "B473r8WuDnQ", title: "@ilyKuda Short", fallbackViews: "views" }
   ];
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -169,7 +168,9 @@
 
     function targetLeft(i) {
       const card = cards[i];
-      return Math.max(0, card.offsetLeft - (viewport.clientWidth - card.offsetWidth) / 2);
+      const track = viewport.querySelector('.carousel-track');
+      const pad = track ? parseFloat(getComputedStyle(track).paddingLeft || '0') : 0;
+      return Math.max(0, card.offsetLeft - pad);
     }
 
     function markActive(i) {
@@ -287,6 +288,34 @@
     nodes.forEach(node => observer.observe(node));
   }
 
+
+  function setupParallax() {
+    if (reducedMotion) return;
+    const bg = document.querySelector('.site-bg');
+    const tint = document.querySelector('.site-tint');
+    if (!bg) return;
+
+    let tx = 0, ty = 0, cx = 0, cy = 0;
+    const maxX = 18;
+    const maxY = 12;
+
+    addEventListener('mousemove', e => {
+      const px = (e.clientX / innerWidth - 0.5) * 2;
+      const py = (e.clientY / innerHeight - 0.5) * 2;
+      tx = -px * maxX;
+      ty = -py * maxY;
+    }, { passive: true });
+
+    function frameParallax() {
+      cx += (tx - cx) * 0.08;
+      cy += (ty - cy) * 0.08;
+      bg.style.transform = `translate3d(${cx}px, ${cy}px, 0) scale(1.08)`;
+      if (tint) tint.style.transform = `translate3d(${cx * 0.45}px, ${cy * 0.45}px, 0)`;
+      requestAnimationFrame(frameParallax);
+    }
+    requestAnimationFrame(frameParallax);
+  }
+
   function setupCursor() {
     if (!matchMedia('(pointer: fine)').matches) return;
     const pointer = document.querySelector('.cursor-pointer');
@@ -301,14 +330,14 @@
     addEventListener('mousemove', e => {
       x = e.clientX;
       y = e.clientY;
-      pointer.style.transform = `translate(${x - 4}px, ${y - 3}px)`;
+      pointer.style.transform = `translate(${x - 3}px, ${y - 2}px)`;
       document.body.classList.add('cursor-ready');
     }, { passive: true });
 
     function followBubble() {
       bx += (x - bx) * .24;
       by += (y - by) * .24;
-      const scale = document.body.classList.contains('cursor-hover') ? 1 : .45;
+      const scale = document.body.classList.contains('cursor-hover') ? 1 : .3;
       bubble.style.transform = `translate(${bx}px, ${by}px) translate(-50%, -50%) scale(${scale})`;
       requestAnimationFrame(followBubble);
     }
@@ -329,6 +358,7 @@
     setupCarousel(root, { autoplay: root.dataset.carousel === 'shorts' ? 5000 : 4300 });
   });
   setupReveal();
+  setupParallax();
   setupCursor();
   document.querySelector('#year').textContent = new Date().getFullYear();
 })();
