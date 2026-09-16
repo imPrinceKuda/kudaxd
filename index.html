@@ -3,86 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#8fd8ff" />
-  <meta name="description" content="Kuda — YouTuber, editor, designer, and Minecraft server owner." />
+  <meta name="theme-color" content="#38a9f4" />
+  <meta name="description" content="Kuda — I build things." />
   <title>Kuda</title>
   <link rel="icon" type="image/png" href="assets/img/favicon.png" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-  <div class="bg" aria-hidden="true"></div>
-  <div class="bg-overlay" aria-hidden="true"></div>
-  <div class="pixel-noise" aria-hidden="true"></div>
-  <div class="cursor" aria-hidden="true"><span></span></div>
-  <div class="cursor-dot" aria-hidden="true"></div>
-
-  <header class="topbar" data-reveal>
-    <a class="brand" href="#top" aria-label="Kuda home">KUDA<span>.</span></a>
-    <a class="reel-jump shine-hover" href="#reel">editing reel <span aria-hidden="true">↓</span></a>
-  </header>
+  <div class="site-bg" aria-hidden="true"></div>
+  <div class="site-tint" aria-hidden="true"></div>
+  <div class="cursor-bubble" aria-hidden="true"></div>
+  <div class="cursor-pointer" aria-hidden="true">
+    <svg viewBox="0 0 30 38" aria-hidden="true">
+      <path d="M3.2 2.2 3.3 29l7.1-7.1 5.5 12.3 5.1-2.3-5.5-11.8 10.3-.1Z" />
+    </svg>
+  </div>
 
   <main id="top">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-orbit orbit-a" aria-hidden="true">✦</div>
-      <div class="hero-orbit orbit-b" aria-hidden="true">✧</div>
-      <div class="hero-copy">
-        <div class="eyebrow" data-reveal data-delay="80">probably making something</div>
-        <h1 id="hero-title" data-reveal data-delay="140">Hey, I’m <span>Kuda</span></h1>
-        <p class="hero-description" data-reveal data-delay="220">
-          YouTuber <i>·</i> video editor <i>·</i> designer <i>·</i> Minecraft server owner.
-          <br />I make things on the internet.
-        </p>
+      <header class="topbar" data-reveal>
+        <a class="top-pill brand-pill shine-hover" href="#top" aria-label="Kuda home">
+          <span class="mini-k" aria-hidden="true">K</span>
+          <span>Kuda</span>
+        </a>
+        <a class="top-pill edits-pill shine-hover" href="#edits">My edits <span aria-hidden="true">↓</span></a>
+      </header>
 
-        <div class="socials" data-reveal data-delay="300" aria-label="Social links">
-          <a class="social-card shine-hover" href="https://discord.gg/fernsmp" target="_blank" rel="noopener noreferrer" aria-label="Join FernSMP Discord">
-            <span class="social-icon discord-icon" aria-hidden="true">
-              <svg viewBox="0 0 32 32" role="img">
-                <path d="M9 8h14l3 5v10l-5 3-2-3H13l-2 3-5-3V13l3-5Zm3 7v4h3v-4h-3Zm5 0v4h3v-4h-3Z"/>
-              </svg>
-            </span>
-            <span><strong>FernSMP</strong><small>discord</small></span>
-            <b aria-hidden="true">↗</b>
-          </a>
+      <div class="hero-card" data-reveal data-delay="80">
+        <h1 id="hero-title">Hey, I’m <span class="kuda-word">Kuda</span> <span class="wave" aria-hidden="true">👋</span></h1>
+        <p>I build things.</p>
 
-          <a class="social-card shine-hover" href="https://www.youtube.com/@ilyKuda" target="_blank" rel="noopener noreferrer" aria-label="Open Kuda YouTube channel">
-            <span class="social-icon youtube-icon" aria-hidden="true">
-              <svg viewBox="0 0 32 32" role="img">
-                <rect x="4" y="8" width="24" height="16" rx="5"/>
-                <path class="play" d="M14 12.5 21 16l-7 3.5Z"/>
-              </svg>
-            </span>
-            <span><strong>YouTube</strong><small>@ilyKuda</small></span>
-            <b aria-hidden="true">↗</b>
+        <nav class="socials" aria-label="Social links">
+          <a class="social-icon-button shine-hover" href="https://discord.gg/fernsmp" target="_blank" rel="noopener noreferrer" aria-label="FernSMP Discord" data-tooltip="Discord">
+            <svg class="pixel-icon" viewBox="0 0 32 32" aria-hidden="true" shape-rendering="crispEdges">
+              <path d="M8 9h16v3h3v12h-4v3h-4v-4h-6v4H9v-3H5V12h3V9Zm4 6v5h4v-5h-4Zm7 0v5h4v-5h-4Z" />
+            </svg>
           </a>
-        </div>
+          <a class="social-icon-button shine-hover" href="https://www.instagram.com/playfernsmp" target="_blank" rel="noopener noreferrer" aria-label="FernSMP Instagram" data-tooltip="Instagram">
+            <svg class="pixel-icon" viewBox="0 0 32 32" aria-hidden="true" shape-rendering="crispEdges">
+              <path fill-rule="evenodd" d="M8 5h16v3h3v16h-3v3H8v-3H5V8h3V5Zm2 5v12h12V10H10Zm4 2h4v2h2v4h-2v2h-4v-2h-2v-4h2v-2Zm6-3h3v3h-3V9Z" />
+            </svg>
+          </a>
+          <a class="social-icon-button shine-hover" href="https://www.tiktok.com/@playfernsmp" target="_blank" rel="noopener noreferrer" aria-label="FernSMP TikTok" data-tooltip="TikTok">
+            <svg class="pixel-icon" viewBox="0 0 32 32" aria-hidden="true" shape-rendering="crispEdges">
+              <path d="M17 5h5v4h4v4h-4v8c0 4-3 7-7 7H9v-4H6v-7h3v-3h7v5h-4v4h3c2 0 3-1 3-3V5h-1Z" />
+            </svg>
+          </a>
+          <a class="social-icon-button shine-hover" href="https://www.youtube.com/@ilyKuda" target="_blank" rel="noopener noreferrer" aria-label="Kuda YouTube" data-tooltip="YouTube">
+            <svg class="pixel-icon" viewBox="0 0 32 32" aria-hidden="true" shape-rendering="crispEdges">
+              <path d="M7 8h18v2h3v12h-3v2H7v-2H4V10h3V8Zm7 5v7l7-3.5L14 13Z" />
+            </svg>
+          </a>
+        </nav>
       </div>
 
-      <a class="scroll-cue" href="#reel" aria-label="Scroll to editing reel" data-reveal data-delay="420">
-        <span>scroll</span>
-        <span class="scroll-line"></span>
-      </a>
+      <a class="scroll-cue" href="#edits" aria-label="Keep scrolling" data-reveal data-delay="160">keep scrolling <span>↘</span></a>
     </section>
 
-    <section class="reel" id="reel" aria-labelledby="reel-title">
+    <section class="showcase-section edits-section" id="edits" aria-labelledby="edits-title">
       <div class="section-head" data-reveal>
         <p class="tiny-label">a few things I’ve edited</p>
-        <h2 id="reel-title">I also edit sometimes...</h2>
+        <h2 id="edits-title">I also edit sometimes...</h2>
       </div>
 
-      <div class="slider-stage" data-reveal data-delay="100">
-        <button class="slider-arrow slider-arrow-left shine-hover" type="button" aria-label="Previous videos">←</button>
-        <div class="slider-shell" id="sliderShell" tabindex="0" aria-label="Video portfolio carousel">
-          <div class="slider-track" id="sliderTrack"></div>
+      <div class="carousel edits-carousel" data-carousel="edits" data-reveal data-delay="80">
+        <button class="carousel-arrow carousel-prev shine-hover" type="button" aria-label="Previous edit">←</button>
+        <div class="carousel-viewport" id="editsViewport" tabindex="0" aria-label="Editing reel carousel">
+          <div class="carousel-track" id="editsTrack"></div>
         </div>
-        <button class="slider-arrow slider-arrow-right shine-hover" type="button" aria-label="Next videos">→</button>
+        <button class="carousel-arrow carousel-next shine-hover" type="button" aria-label="Next edit">→</button>
       </div>
-      <p class="drag-note" data-reveal data-delay="180">drag it around · click a video to watch</p>
+      <p class="carousel-note" data-reveal data-delay="130">drag it around · click a video to watch</p>
+    </section>
+
+    <section class="showcase-section shorts-section" id="shorts" aria-labelledby="shorts-title">
+      <div class="section-head shorts-head" data-reveal>
+        <p class="tiny-label">the short stuff</p>
+        <h2 id="shorts-title">and I make Shorts.</h2>
+        <a class="channel-link shine-hover" href="https://www.youtube.com/@ilyKuda/shorts" target="_blank" rel="noopener noreferrer">@ilyKuda <span>↗</span></a>
+      </div>
+
+      <div class="carousel shorts-carousel" data-carousel="shorts" data-reveal data-delay="80">
+        <button class="carousel-arrow carousel-prev shine-hover" type="button" aria-label="Previous Short">←</button>
+        <div class="carousel-viewport" id="shortsViewport" tabindex="0" aria-label="YouTube Shorts carousel">
+          <div class="carousel-track" id="shortsTrack"></div>
+        </div>
+        <button class="carousel-arrow carousel-next shine-hover" type="button" aria-label="Next Short">→</button>
+      </div>
+      <p class="carousel-note shorts-note" data-reveal data-delay="130">drag to browse · tap one to watch</p>
     </section>
   </main>
 
   <footer>
     <span>Kuda © <span id="year"></span></span>
-    <span>Made with good vibes & questionable sleep.</span>
+    <a href="#top">back to top ↑</a>
   </footer>
 
   <div class="video-modal" id="videoModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Video player">
