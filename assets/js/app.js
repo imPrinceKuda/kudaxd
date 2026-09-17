@@ -246,123 +246,15 @@
     });
   }
 
-  function setupUISounds() {
-    if (!matchMedia('(pointer: fine)').matches) return;
-    const interactiveSelector = 'a, button, [role="button"]';
-    const hoverSound = new Audio('assets/audio/hover-bubble.wav');
-    const clickSound = new Audio('assets/audio/mouse-click.wav');
-    hoverSound.preload = 'auto';
-    clickSound.preload = 'auto';
-    hoverSound.volume = 0.34;
-    clickSound.volume = 0.46;
-    let hoverTarget = null;
-    let audioUnlocked = false;
-
-    const playSound = (sound) => {
-      if (!audioUnlocked) return;
-      try {
-        sound.pause();
-        sound.currentTime = 0;
-        sound.play().catch(() => {});
-      } catch (_) {}
-    };
-
-    // Browsers require one user gesture before hover audio can play reliably.
-    const unlockAudio = () => {
-      audioUnlocked = true;
-      hoverSound.load();
-      clickSound.load();
-      document.removeEventListener('pointerdown', unlockAudio, true);
-    };
-    document.addEventListener('pointerdown', unlockAudio, true);
-
-    document.addEventListener('pointerover', e => {
-      const target = e.target.closest(interactiveSelector);
-      if (!target || target === hoverTarget) return;
-      hoverTarget = target;
-      playSound(hoverSound);
-    });
-
-    document.addEventListener('pointerout', e => {
-      const target = e.target.closest(interactiveSelector);
-      const goingTo = e.relatedTarget && e.relatedTarget.closest?.(interactiveSelector);
-      if (target && !goingTo && hoverTarget === target) hoverTarget = null;
-    });
-
-    document.addEventListener('pointerdown', e => {
-      if (e.button !== 0 || !e.target.closest(interactiveSelector)) return;
-      // The first click unlocks audio; play a real click immediately afterward.
-      audioUnlocked = true;
-      playSound(clickSound);
-    });
-  }
-
   function setupSmoothScroll() {
-    if (reducedMotion || !matchMedia('(pointer: fine)').matches) return;
-
-    let currentY = window.scrollY;
-    let targetY = currentY;
-    let running = false;
-    let raf = 0;
-
-    const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - innerHeight);
-    const clamp = value => Math.max(0, Math.min(maxScroll(), value));
-
-    const tick = () => {
-      const distance = targetY - currentY;
-      currentY += distance * 0.075;
-      window.scrollTo(0, currentY);
-
-      if (Math.abs(distance) > 0.55) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        currentY = targetY;
-        window.scrollTo(0, currentY);
-        running = false;
-        raf = 0;
-      }
-    };
-
-    addEventListener('wheel', e => {
-      if (document.querySelector('.video-modal.active')) return;
-      if (e.ctrlKey) return;
-
-      let delta = e.deltaY;
-      if (e.deltaMode === 1) delta *= 32;
-      if (e.deltaMode === 2) delta *= innerHeight;
-      delta = Math.sign(delta) * Math.min(Math.abs(delta), 150);
-
-      e.preventDefault();
-      if (!running) {
-        currentY = window.scrollY;
-        targetY = currentY;
-      }
-      targetY = clamp(targetY + delta * 1.38);
-
-      if (!running) {
-        running = true;
-        raf = requestAnimationFrame(tick);
-      }
-    }, { passive: false });
-
-    addEventListener('scroll', () => {
-      if (!running) {
-        currentY = window.scrollY;
-        targetY = currentY;
-      }
-    }, { passive: true });
-
-    addEventListener('resize', () => {
-      targetY = clamp(targetY);
-      currentY = clamp(currentY);
-    }, { passive: true });
+    // Keep native wheel/trackpad scrolling for immediate response.
+    // CSS scroll-behavior handles only anchor-link transitions.
   }
 
   renderCards();
   setupReveal();
   setupParallax();
   setupCursor();
-  setupUISounds();
   setupSmoothScroll();
   document.querySelector('#year').textContent = new Date().getFullYear();
 })();
