@@ -325,11 +325,7 @@
     let y = innerHeight / 2;
 
     const renderCursor = () => {
-      const scale = document.body.classList.contains('cursor-click') ? 0.84 : 1;
-      const hovering = document.body.classList.contains('cursor-hover');
-      const ox = hovering ? -8 : -5;
-      const oy = hovering ? -5 : -4;
-      pointer.style.transform = `translate(${x + ox}px, ${y + oy}px) scale(${scale})`;
+      pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     };
 
     addEventListener('mousemove', e => {
