@@ -213,25 +213,32 @@
     let anchorY = 0;
     let raf = 0;
 
+    const setMode = mode => {
+      body.dataset.cursorMode = mode;
+    };
+
     const renderCursor = () => {
       pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     };
 
-    const updateHoverCursor = target => {
-      if (autoScroll) return;
+    const updateCursorMode = target => {
+      if (autoScroll) {
+        setMode('scroll');
+        return;
+      }
       const interactive = !!target?.closest?.(interactiveSelector);
       const textual = !interactive && !!target?.closest?.(textSelector);
-      body.classList.toggle('cursor-hover', interactive);
-      body.classList.toggle('cursor-texting', textual);
+      if (interactive) setMode('hover');
+      else if (textual) setMode('text');
+      else setMode('default');
     };
 
     const stopAutoScroll = () => {
       if (!autoScroll) return;
       autoScroll = false;
-      body.classList.remove('cursor-scrollmode');
       if (raf) cancelAnimationFrame(raf);
       raf = 0;
-      updateHoverCursor(document.elementFromPoint(x, y));
+      updateCursorMode(document.elementFromPoint(x, y));
     };
 
     const autoScrollFrame = () => {
@@ -251,24 +258,20 @@
       y = e.clientY;
       body.classList.add('cursor-ready');
       renderCursor();
+      updateCursorMode(e.target);
     }, { passive: true });
 
     document.addEventListener('pointerdown', e => {
       if (e.button === 0) {
         if (autoScroll) stopAutoScroll();
         body.classList.add('cursor-click');
-        renderCursor();
       }
     });
     document.addEventListener('pointerup', e => {
-      if (e.button === 0) {
-        body.classList.remove('cursor-click');
-        renderCursor();
-      }
+      if (e.button === 0) body.classList.remove('cursor-click');
     });
     document.addEventListener('pointercancel', () => {
       body.classList.remove('cursor-click');
-      renderCursor();
     });
 
     document.addEventListener('mousedown', e => {
@@ -282,8 +285,9 @@
       anchorY = e.clientY;
       x = e.clientX;
       y = e.clientY;
-      body.classList.remove('cursor-hover', 'cursor-texting', 'cursor-click');
-      body.classList.add('cursor-scrollmode', 'cursor-ready');
+      body.classList.remove('cursor-click');
+      body.classList.add('cursor-ready');
+      setMode('scroll');
       renderCursor();
       raf = requestAnimationFrame(autoScrollFrame);
     }, { capture: true });
@@ -296,39 +300,53 @@
       if (e.key === 'Escape') stopAutoScroll();
     });
 
-    document.addEventListener('pointerover', e => updateHoverCursor(e.target));
+    document.addEventListener('pointerover', e => updateCursorMode(e.target));
     document.addEventListener('pointerout', e => {
       if (autoScroll) return;
-      const leaving = e.target.closest?.(interactiveSelector) || e.target.closest?.(textSelector);
-      const entering = e.relatedTarget && (e.relatedTarget.closest?.(interactiveSelector) || e.relatedTarget.closest?.(textSelector));
-      if (leaving && !entering) {
-        body.classList.remove('cursor-hover', 'cursor-texting');
-      } else if (e.relatedTarget) {
-        updateHoverCursor(e.relatedTarget);
-      }
+      const next = e.relatedTarget || document.elementFromPoint(x, y);
+      updateCursorMode(next);
     });
+
+    setMode('default');
   }
 
   function setupBeachAudio() {
     const audio = document.querySelector('#beachAmbience');
     if (!audio) return;
-    audio.volume = 0.22;
+    audio.volume = 0.34;
+    audio.loop = true;
+    audio.muted = false;
+    audio.preload = 'auto';
 
+    let started = false;
     const start = () => {
+      if (started && !audio.paused) return;
       const promise = audio.play();
-      if (promise?.catch) promise.catch(() => {});
+      if (promise?.then) {
+        promise.then(() => { started = true; }).catch(() => {});
+      }
     };
 
-    start();
     const unlock = () => {
       start();
-      document.removeEventListener('pointerdown', unlock);
-      document.removeEventListener('keydown', unlock);
-      document.removeEventListener('touchstart', unlock);
+      if (!audio.paused) {
+        document.removeEventListener('pointerdown', unlock);
+        document.removeEventListener('keydown', unlock);
+        document.removeEventListener('touchstart', unlock);
+        document.removeEventListener('mousemove', unlock);
+        document.removeEventListener('wheel', unlock);
+        document.removeEventListener('scroll', unlock);
+      }
     };
+
+    audio.addEventListener('canplay', start, { once: true });
+    start();
     document.addEventListener('pointerdown', unlock, { passive: true });
     document.addEventListener('keydown', unlock);
     document.addEventListener('touchstart', unlock, { passive: true });
+    document.addEventListener('mousemove', unlock, { passive: true, once: true });
+    document.addEventListener('wheel', unlock, { passive: true, once: true });
+    document.addEventListener('scroll', unlock, { passive: true, once: true });
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && audio.paused) start();
