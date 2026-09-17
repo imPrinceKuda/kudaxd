@@ -274,6 +274,7 @@ button { font: inherit; }
     linear-gradient(180deg, rgba(50,166,225,.1), rgba(4,50,82,.17));
 }
 .shorts-section {
+  padding-top: 56px;
   background: linear-gradient(180deg, rgba(3,73,117,.64), rgba(3,45,76,.75));
 }
 .section-head {
@@ -300,8 +301,8 @@ button { font: inherit; }
   font-weight: 950;
   text-shadow: 0 3px 0 rgba(22,107,158,.22), 0 18px 45px rgba(0,39,68,.25);
 }
-.shorts-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px 24px; }
-.shorts-head .tiny-label { grid-column: 1 / -1; }
+.shorts-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px 24px; margin-bottom: 18px; }
+
 .channel-link {
   position: relative;
   overflow: hidden;
@@ -555,35 +556,28 @@ footer a:hover { color: white; }
   z-index: 9999;
   top: 0;
   left: 0;
-  width: 38px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   pointer-events: none;
   opacity: 0;
   will-change: transform;
   transition: opacity .12s ease, filter .12s ease;
-  filter: drop-shadow(0 2px 3px rgba(5,56,92,.24));
+  filter: drop-shadow(0 2px 3px rgba(5,56,92,.18));
 }
-.cursor-pointer svg {
+.cursor-pointer img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  overflow: visible;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity .12s ease;
 }
-.cursor-arrow { opacity: 1; transform: translate(0,0) scale(1); }
-.cursor-hand { opacity: 0; transform: translate(-1px, -1px) scale(.94); }
-.cursor-arrow path,
-.cursor-hand path {
-  fill: #8fdfff;
-  stroke: #f8fdff;
-  stroke-width: 2.2;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-.cursor-hand path { fill: #a9e8ff; }
+.cursor-arrow { opacity: 1; }
+.cursor-hand { opacity: 0; }
 body.cursor-ready .cursor-pointer { opacity: 1; }
-body.cursor-hover .cursor-pointer { filter: drop-shadow(0 3px 4px rgba(6,62,100,.28)); }
+body.cursor-hover .cursor-pointer { filter: drop-shadow(0 3px 4px rgba(6,62,100,.22)); }
 body.cursor-hover .cursor-arrow { opacity: 0; }
 body.cursor-hover .cursor-hand { opacity: 1; }
 

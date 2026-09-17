@@ -321,18 +321,51 @@
     const pointer = document.querySelector('.cursor-pointer');
     if (!pointer) return;
 
+    let x = innerWidth / 2;
+    let y = innerHeight / 2;
+
+    const renderCursor = () => {
+      const scale = document.body.classList.contains('cursor-click') ? 0.84 : 1;
+      const hovering = document.body.classList.contains('cursor-hover');
+      const ox = hovering ? -8 : -5;
+      const oy = hovering ? -5 : -4;
+      pointer.style.transform = `translate(${x + ox}px, ${y + oy}px) scale(${scale})`;
+    };
+
     addEventListener('mousemove', e => {
-      pointer.style.transform = `translate(${e.clientX - 4}px, ${e.clientY - 3}px)`;
+      x = e.clientX;
+      y = e.clientY;
       document.body.classList.add('cursor-ready');
+      renderCursor();
     }, { passive: true });
 
+    document.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      document.body.classList.add('cursor-click');
+      renderCursor();
+    });
+    document.addEventListener('pointerup', () => {
+      document.body.classList.remove('cursor-click');
+      renderCursor();
+    });
+    document.addEventListener('pointercancel', () => {
+      document.body.classList.remove('cursor-click');
+      renderCursor();
+    });
+
     document.addEventListener('pointerover', e => {
-      if (e.target.closest('a, button, [role="button"]')) document.body.classList.add('cursor-hover');
+      if (e.target.closest('a, button, [role="button"]')) {
+        document.body.classList.add('cursor-hover');
+        renderCursor();
+      }
     });
     document.addEventListener('pointerout', e => {
       const interactive = e.target.closest('a, button, [role="button"]');
       const goingToInteractive = e.relatedTarget && e.relatedTarget.closest?.('a, button, [role="button"]');
-      if (interactive && !goingToInteractive) document.body.classList.remove('cursor-hover');
+      if (interactive && !goingToInteractive) {
+        document.body.classList.remove('cursor-hover');
+        renderCursor();
+      }
     });
   }
 
