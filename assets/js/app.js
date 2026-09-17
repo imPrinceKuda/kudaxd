@@ -25,7 +25,9 @@
     { id: "wH29xbbmIFU", title: "@ilyKuda Short", fallbackViews: "views" },
     { id: "BeyY4vdPc1U", title: "@ilyKuda Short", fallbackViews: "views" },
     { id: "X27OrL25QuA", title: "@ilyKuda Short", fallbackViews: "views" },
-    { id: "B473r8WuDnQ", title: "@ilyKuda Short", fallbackViews: "views" }
+    { id: "B473r8WuDnQ", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "EAg22kfHJfw", title: "@ilyKuda Short", fallbackViews: "views" },
+    { id: "A-ueu0jnXuo", title: "@ilyKuda Short", fallbackViews: "views" }
   ];
 
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -202,47 +204,134 @@
     const pointer = document.querySelector('.cursor-pointer');
     if (!pointer) return;
 
+    const body = document.body;
+    const interactiveSelector = 'a, button, [role="button"]';
+    const textSelector = 'p, h1, h2, h3, h4, h5, h6, span, li, label, blockquote, figcaption, small, strong, em, code';
     let x = innerWidth / 2;
     let y = innerHeight / 2;
+    let autoScroll = false;
+    let anchorY = 0;
+    let raf = 0;
 
     const renderCursor = () => {
       pointer.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     };
 
+    const updateHoverCursor = target => {
+      if (autoScroll) return;
+      const interactive = !!target?.closest?.(interactiveSelector);
+      const textual = !interactive && !!target?.closest?.(textSelector);
+      body.classList.toggle('cursor-hover', interactive);
+      body.classList.toggle('cursor-texting', textual);
+    };
+
+    const stopAutoScroll = () => {
+      if (!autoScroll) return;
+      autoScroll = false;
+      body.classList.remove('cursor-scrollmode');
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      updateHoverCursor(document.elementFromPoint(x, y));
+    };
+
+    const autoScrollFrame = () => {
+      if (!autoScroll) return;
+      const delta = y - anchorY;
+      const deadZone = 13;
+      const amount = Math.max(0, Math.abs(delta) - deadZone);
+      if (amount > 0) {
+        const speed = Math.min(24, 1.4 + Math.pow(amount / 18, 1.15) * 3.2);
+        scrollBy(0, Math.sign(delta) * speed);
+      }
+      raf = requestAnimationFrame(autoScrollFrame);
+    };
+
     addEventListener('mousemove', e => {
       x = e.clientX;
       y = e.clientY;
-      document.body.classList.add('cursor-ready');
+      body.classList.add('cursor-ready');
       renderCursor();
     }, { passive: true });
 
     document.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-      document.body.classList.add('cursor-click');
-      renderCursor();
+      if (e.button === 0) {
+        if (autoScroll) stopAutoScroll();
+        body.classList.add('cursor-click');
+        renderCursor();
+      }
     });
-    document.addEventListener('pointerup', () => {
-      document.body.classList.remove('cursor-click');
-      renderCursor();
+    document.addEventListener('pointerup', e => {
+      if (e.button === 0) {
+        body.classList.remove('cursor-click');
+        renderCursor();
+      }
     });
     document.addEventListener('pointercancel', () => {
-      document.body.classList.remove('cursor-click');
+      body.classList.remove('cursor-click');
       renderCursor();
     });
 
-    document.addEventListener('pointerover', e => {
-      if (e.target.closest('a, button, [role="button"]')) {
-        document.body.classList.add('cursor-hover');
-        renderCursor();
+    document.addEventListener('mousedown', e => {
+      if (e.button !== 1) return;
+      e.preventDefault();
+      if (autoScroll) {
+        stopAutoScroll();
+        return;
+      }
+      autoScroll = true;
+      anchorY = e.clientY;
+      x = e.clientX;
+      y = e.clientY;
+      body.classList.remove('cursor-hover', 'cursor-texting', 'cursor-click');
+      body.classList.add('cursor-scrollmode', 'cursor-ready');
+      renderCursor();
+      raf = requestAnimationFrame(autoScrollFrame);
+    }, { capture: true });
+
+    document.addEventListener('auxclick', e => {
+      if (e.button === 1) e.preventDefault();
+    }, { capture: true });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') stopAutoScroll();
+    });
+
+    document.addEventListener('pointerover', e => updateHoverCursor(e.target));
+    document.addEventListener('pointerout', e => {
+      if (autoScroll) return;
+      const leaving = e.target.closest?.(interactiveSelector) || e.target.closest?.(textSelector);
+      const entering = e.relatedTarget && (e.relatedTarget.closest?.(interactiveSelector) || e.relatedTarget.closest?.(textSelector));
+      if (leaving && !entering) {
+        body.classList.remove('cursor-hover', 'cursor-texting');
+      } else if (e.relatedTarget) {
+        updateHoverCursor(e.relatedTarget);
       }
     });
-    document.addEventListener('pointerout', e => {
-      const interactive = e.target.closest('a, button, [role="button"]');
-      const goingToInteractive = e.relatedTarget && e.relatedTarget.closest?.('a, button, [role="button"]');
-      if (interactive && !goingToInteractive) {
-        document.body.classList.remove('cursor-hover');
-        renderCursor();
-      }
+  }
+
+  function setupBeachAudio() {
+    const audio = document.querySelector('#beachAmbience');
+    if (!audio) return;
+    audio.volume = 0.22;
+
+    const start = () => {
+      const promise = audio.play();
+      if (promise?.catch) promise.catch(() => {});
+    };
+
+    start();
+    const unlock = () => {
+      start();
+      document.removeEventListener('pointerdown', unlock);
+      document.removeEventListener('keydown', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+    document.addEventListener('pointerdown', unlock, { passive: true });
+    document.addEventListener('keydown', unlock);
+    document.addEventListener('touchstart', unlock, { passive: true });
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && audio.paused) start();
     });
   }
 
@@ -255,6 +344,7 @@
   setupReveal();
   setupParallax();
   setupCursor();
+  setupBeachAudio();
   setupSmoothScroll();
   document.querySelector('#year').textContent = new Date().getFullYear();
 })();
