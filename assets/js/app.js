@@ -315,73 +315,53 @@
     const muteToggle = document.querySelector('#muteToggle');
     if (!audio) return;
 
-    const savedMuted = (() => {
-      try { return localStorage.getItem('kudaBeachMuted') === 'true'; }
-      catch (_) { return false; }
-    })();
+    let muted = false;
+    try { muted = localStorage.getItem('kudaBeachMuted') === 'true'; } catch (_) {}
 
-    audio.volume = 0.11;
+    audio.volume = 0.028;
     audio.loop = true;
     audio.preload = 'auto';
-    audio.muted = savedMuted;
+    audio.muted = muted;
 
-    const updateButton = () => {
+    const syncButton = () => {
       if (!muteToggle) return;
-      const muted = audio.muted;
-      muteToggle.setAttribute('aria-pressed', String(muted));
-      muteToggle.setAttribute('aria-label', muted ? 'Unmute beach sounds' : 'Mute beach sounds');
-      const icon = muteToggle.querySelector('.mute-icon');
-      const text = muteToggle.querySelector('.mute-text');
-      if (icon) icon.textContent = muted ? '🔇' : '🔊';
-      if (text) text.textContent = muted ? 'Sound muted' : 'Beach sounds';
+      muteToggle.setAttribute('aria-pressed', String(audio.muted));
+      const label = audio.muted ? 'Unmute beach ambience' : 'Mute beach ambience';
+      muteToggle.setAttribute('aria-label', label);
+      muteToggle.title = label;
     };
 
-    let started = false;
-    const start = () => {
-      if (audio.muted) {
-        updateButton();
-        return;
-      }
-      if (started && !audio.paused) return;
-      const promise = audio.play();
-      if (promise?.then) {
-        promise.then(() => { started = true; updateButton(); }).catch(() => {});
-      }
-    };
-
-    const unlock = () => {
-      start();
-      if (!audio.paused || audio.muted) {
-        document.removeEventListener('pointerdown', unlock);
-        document.removeEventListener('keydown', unlock);
-        document.removeEventListener('touchstart', unlock);
-        document.removeEventListener('mousemove', unlock);
-        document.removeEventListener('wheel', unlock);
-        document.removeEventListener('scroll', unlock);
-      }
+    const tryPlay = () => {
+      if (audio.muted || !audio.paused) return;
+      const p = audio.play();
+      if (p?.catch) p.catch(() => {});
     };
 
     if (muteToggle) {
-      muteToggle.addEventListener('click', () => {
+      muteToggle.addEventListener('pointerdown', e => e.stopPropagation());
+      muteToggle.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
         audio.muted = !audio.muted;
         try { localStorage.setItem('kudaBeachMuted', String(audio.muted)); } catch (_) {}
-        if (!audio.muted) start();
-        updateButton();
+        syncButton();
+        if (!audio.muted) tryPlay();
       });
     }
 
-    audio.addEventListener('canplay', start, { once: true });
-    updateButton();
-    start();
+    const unlock = e => {
+      if (e?.target?.closest?.('#muteToggle')) return;
+      tryPlay();
+    };
+
+    syncButton();
+    tryPlay();
     document.addEventListener('pointerdown', unlock, { passive: true });
     document.addEventListener('keydown', unlock);
     document.addEventListener('touchstart', unlock, { passive: true });
-    document.addEventListener('mousemove', unlock, { passive: true, once: true });
-    document.addEventListener('wheel', unlock, { passive: true, once: true });
-    document.addEventListener('scroll', unlock, { passive: true, once: true });
 
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && audio.paused && !audio.muted) start();
+      if (!document.hidden) tryPlay();
     });
   }
 
