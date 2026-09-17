@@ -329,6 +329,8 @@
       const label = audio.muted ? 'Unmute beach ambience' : 'Mute beach ambience';
       muteToggle.setAttribute('aria-label', label);
       muteToggle.title = label;
+      const glyph = muteToggle.querySelector('.mute-glyph');
+      if (glyph) glyph.textContent = audio.muted ? '🔇' : '🔊';
     };
 
     const tryPlay = () => {

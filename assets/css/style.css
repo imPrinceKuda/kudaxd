@@ -667,28 +667,24 @@ body.cursor-click .cursor-pointer img { scale: .82; }
   color: #187fbd;
   box-shadow: 0 9px 24px rgba(3,56,91,.16), inset 0 1px rgba(255,255,255,.95);
   backdrop-filter: blur(10px);
-  transition: transform .16s ease, background .16s ease, opacity .16s ease;
+  transition: transform .16s ease, background .16s ease, opacity .16s ease, color .16s ease;
+  font: inherit;
 }
 .mute-toggle:hover {
   transform: scale(1.06);
   background: rgba(245,252,255,.95);
 }
 .mute-toggle:active { transform: scale(.94); }
-.speaker-icon {
-  position: absolute;
-  width: 21px;
-  height: 21px;
-  fill: currentColor;
-  transition: opacity .12s ease, transform .12s ease;
+.mute-glyph {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+  transform: translateY(-.5px);
 }
-.speaker-on { opacity: 1; transform: scale(1); }
-.speaker-off { opacity: 0; transform: scale(.88); }
 .mute-toggle[aria-pressed="true"] {
   color: #62839b;
   background: rgba(215,235,245,.8);
 }
-.mute-toggle[aria-pressed="true"] .speaker-on { opacity: 0; transform: scale(.88); }
-.mute-toggle[aria-pressed="true"] .speaker-off { opacity: 1; transform: scale(1); }
 @media (max-width: 760px) {
   .mute-toggle {
     right: 11px;
@@ -697,5 +693,5 @@ body.cursor-click .cursor-pointer img { scale: .82; }
     height: 39px;
     border-radius: 13px;
   }
-  .speaker-icon { width: 19px; height: 19px; }
+  .mute-glyph { font-size: 16px; }
 }
