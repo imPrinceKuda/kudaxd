@@ -3,7 +3,7 @@
     "0vFNOa7EZjw", "8Wt7fe8kHNc", "s2B5a-8JxaY", "FVpdaVekZR4",
     "PmnywiU7cYU", "j6rmudQ-auE", "IRMAfNz83jA", "x4J7ETzv8P0",
     "1YXfRapkcfY", "iW8otHVCwRU", "PrmXtRaaw24", "HbSh7zftHFw",
-    "--GnjB1205I", "rmVhQzWmero", "KRgdD_W6yEY", "cKCfN6gZs6o", "kkLRsBaXCLA"
+    "--GnjB1205I", "rmVhQzWmero", "KRgdD_W6yEY", "cKCfN6gZs6o"
   ];
 
   const editViews = {
@@ -12,7 +12,7 @@
     "IRMAfNz83jA":"188K+", "x4J7ETzv8P0":"187K+", "1YXfRapkcfY":"167K+",
     "iW8otHVCwRU":"162K+", "PrmXtRaaw24":"147K+", "HbSh7zftHFw":"108K+",
     "--GnjB1205I":"61K+", "rmVhQzWmero":"61K+", "KRgdD_W6yEY":"31K+",
-    "cKCfN6gZs6o":"16K+", "kkLRsBaXCLA":"video"
+    "cKCfN6gZs6o":"16K+"
   };
 
   const shorts = [
@@ -249,63 +249,38 @@
   function setupUISounds() {
     if (!matchMedia('(pointer: fine)').matches) return;
     const interactiveSelector = 'a, button, [role="button"]';
-    let ctx;
+    const hoverSound = new Audio('assets/audio/hover-bubble.wav');
+    const clickSound = new Audio('assets/audio/mouse-click.wav');
+    hoverSound.preload = 'auto';
+    clickSound.preload = 'auto';
+    hoverSound.volume = 0.34;
+    clickSound.volume = 0.46;
     let hoverTarget = null;
+    let audioUnlocked = false;
 
-    function ensureAudio() {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return null;
-      if (!ctx) ctx = new Ctx();
-      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-      return ctx;
-    }
+    const playSound = (sound) => {
+      if (!audioUnlocked) return;
+      try {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+      } catch (_) {}
+    };
 
-    function playHoverSound() {
-      const audio = ensureAudio();
-      if (!audio) return;
-      const t = audio.currentTime + 0.005;
-      const osc1 = audio.createOscillator();
-      const osc2 = audio.createOscillator();
-      const gain = audio.createGain();
-      osc1.type = 'sine';
-      osc2.type = 'triangle';
-      osc1.frequency.setValueAtTime(640, t);
-      osc1.frequency.exponentialRampToValueAtTime(900, t + 0.06);
-      osc2.frequency.setValueAtTime(420, t);
-      osc2.frequency.exponentialRampToValueAtTime(560, t + 0.05);
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.linearRampToValueAtTime(0.028, t + 0.012);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(audio.destination);
-      osc1.start(t); osc2.start(t);
-      osc1.stop(t + 0.1); osc2.stop(t + 0.1);
-    }
-
-    function playClickSound() {
-      const audio = ensureAudio();
-      if (!audio) return;
-      const t = audio.currentTime + 0.002;
-      const osc = audio.createOscillator();
-      const gain = audio.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(950, t);
-      osc.frequency.exponentialRampToValueAtTime(520, t + 0.03);
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.linearRampToValueAtTime(0.022, t + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
-      osc.connect(gain);
-      gain.connect(audio.destination);
-      osc.start(t);
-      osc.stop(t + 0.05);
-    }
+    // Browsers require one user gesture before hover audio can play reliably.
+    const unlockAudio = () => {
+      audioUnlocked = true;
+      hoverSound.load();
+      clickSound.load();
+      document.removeEventListener('pointerdown', unlockAudio, true);
+    };
+    document.addEventListener('pointerdown', unlockAudio, true);
 
     document.addEventListener('pointerover', e => {
       const target = e.target.closest(interactiveSelector);
       if (!target || target === hoverTarget) return;
       hoverTarget = target;
-      playHoverSound();
+      playSound(hoverSound);
     });
 
     document.addEventListener('pointerout', e => {
@@ -315,10 +290,72 @@
     });
 
     document.addEventListener('pointerdown', e => {
-      if (e.button !== 0) return;
-      if (!e.target.closest(interactiveSelector)) return;
-      playClickSound();
+      if (e.button !== 0 || !e.target.closest(interactiveSelector)) return;
+      // The first click unlocks audio; play a real click immediately afterward.
+      audioUnlocked = true;
+      playSound(clickSound);
     });
+  }
+
+  function setupSmoothScroll() {
+    if (reducedMotion || !matchMedia('(pointer: fine)').matches) return;
+
+    let currentY = window.scrollY;
+    let targetY = currentY;
+    let running = false;
+    let raf = 0;
+
+    const maxScroll = () => Math.max(0, document.documentElement.scrollHeight - innerHeight);
+    const clamp = value => Math.max(0, Math.min(maxScroll(), value));
+
+    const tick = () => {
+      const distance = targetY - currentY;
+      currentY += distance * 0.075;
+      window.scrollTo(0, currentY);
+
+      if (Math.abs(distance) > 0.55) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        currentY = targetY;
+        window.scrollTo(0, currentY);
+        running = false;
+        raf = 0;
+      }
+    };
+
+    addEventListener('wheel', e => {
+      if (document.querySelector('.video-modal.active')) return;
+      if (e.ctrlKey) return;
+
+      let delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 32;
+      if (e.deltaMode === 2) delta *= innerHeight;
+      delta = Math.sign(delta) * Math.min(Math.abs(delta), 150);
+
+      e.preventDefault();
+      if (!running) {
+        currentY = window.scrollY;
+        targetY = currentY;
+      }
+      targetY = clamp(targetY + delta * 1.38);
+
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(tick);
+      }
+    }, { passive: false });
+
+    addEventListener('scroll', () => {
+      if (!running) {
+        currentY = window.scrollY;
+        targetY = currentY;
+      }
+    }, { passive: true });
+
+    addEventListener('resize', () => {
+      targetY = clamp(targetY);
+      currentY = clamp(currentY);
+    }, { passive: true });
   }
 
   renderCards();
@@ -326,5 +363,6 @@
   setupParallax();
   setupCursor();
   setupUISounds();
+  setupSmoothScroll();
   document.querySelector('#year').textContent = new Date().getFullYear();
 })();
