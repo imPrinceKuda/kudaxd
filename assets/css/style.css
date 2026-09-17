@@ -330,14 +330,14 @@ button { font: inherit; }
   padding: 0;
 }
 .carousel-viewport {
-  overflow-x: auto;
+  overflow-x: hidden;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scroll-padding-inline: 24px;
   outline: none;
-  touch-action: pan-x pan-y;
+  touch-action: pan-y;
 }
 .carousel-viewport::-webkit-scrollbar { display: none; }
 .carousel-track {
@@ -348,6 +348,7 @@ button { font: inherit; }
 }
 .carousel-arrow {
   position: absolute;
+  z-index: 8;
   overflow: hidden;
   top: 50%;
   transform: translateY(-50%);

@@ -160,10 +160,6 @@
 
     let index = 0;
     let timer = null;
-    let dragging = false;
-    let moved = false;
-    let startX = 0;
-    let startLeft = 0;
     let resumeTimer = null;
 
     function targetLeft(i) {
@@ -174,34 +170,21 @@
     }
 
     function markActive(i) {
-      index = Math.max(0, Math.min(cards.length - 1, i));
+      index = ((i % cards.length) + cards.length) % cards.length;
       cards.forEach((card, n) => card.classList.toggle('is-active', n === index));
     }
 
     function go(i, behavior = 'smooth') {
-      let nextIndex = i;
-      if (nextIndex < 0) nextIndex = cards.length - 1;
-      if (nextIndex >= cards.length) nextIndex = 0;
+      const nextIndex = ((i % cards.length) + cards.length) % cards.length;
       markActive(nextIndex);
       viewport.scrollTo({ left: targetLeft(nextIndex), behavior });
-    }
-
-    function closestIndex() {
-      const center = viewport.scrollLeft + viewport.clientWidth / 2;
-      let best = 0;
-      let distance = Infinity;
-      cards.forEach((card, i) => {
-        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-        const d = Math.abs(cardCenter - center);
-        if (d < distance) { distance = d; best = i; }
-      });
-      return best;
     }
 
     function stopAuto() {
       if (timer) clearInterval(timer);
       timer = null;
       if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = null;
     }
 
     function startAuto(delay = autoplay) {
@@ -212,56 +195,39 @@
       }, delay);
     }
 
-    prev?.addEventListener('click', () => { stopAuto(); go(index - 1); startAuto(6500); });
-    next?.addEventListener('click', () => { stopAuto(); go(index + 1); startAuto(6500); });
-
-    viewport.addEventListener('pointerdown', e => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      dragging = true;
-      moved = false;
-      startX = e.clientX;
-      startLeft = viewport.scrollLeft;
-      stopAuto();
-      viewport.style.scrollBehavior = 'auto';
-    });
-
-    viewport.addEventListener('pointermove', e => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      if (Math.abs(dx) > 6) moved = true;
-      if (!moved) return;
+    prev?.addEventListener('click', e => {
       e.preventDefault();
-      viewport.scrollLeft = startLeft - dx;
+      e.stopPropagation();
+      stopAuto();
+      go(index - 1);
+      startAuto(6500);
     });
 
-    const finishDrag = () => {
-      if (!dragging) return;
-      dragging = false;
-      viewport.style.scrollBehavior = '';
-      const nearest = closestIndex();
-      go(nearest);
-      startAuto(6000);
-      setTimeout(() => { moved = false; }, 100);
-    };
-    viewport.addEventListener('pointerup', finishDrag);
-    viewport.addEventListener('pointercancel', finishDrag);
-    viewport.addEventListener('pointerleave', e => { if (dragging && e.pointerType === 'mouse') finishDrag(); });
-    viewport.addEventListener('click', e => {
-      if (moved) { e.preventDefault(); e.stopPropagation(); }
-    }, true);
+    next?.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      stopAuto();
+      go(index + 1);
+      startAuto(6500);
+    });
 
-    let scrollDebounce;
-    viewport.addEventListener('scroll', () => {
-      clearTimeout(scrollDebounce);
-      scrollDebounce = setTimeout(() => markActive(closestIndex()), 90);
-    }, { passive: true });
     viewport.addEventListener('mouseenter', stopAuto);
     viewport.addEventListener('mouseleave', () => startAuto(2500));
     viewport.addEventListener('focusin', stopAuto);
     viewport.addEventListener('focusout', () => startAuto(3500));
     viewport.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') { e.preventDefault(); stopAuto(); go(index - 1); startAuto(6000); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); stopAuto(); go(index + 1); startAuto(6000); }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stopAuto();
+        go(index - 1);
+        startAuto(6000);
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stopAuto();
+        go(index + 1);
+        startAuto(6000);
+      }
     });
 
     addEventListener('resize', () => go(index, 'auto'), { passive: true });
