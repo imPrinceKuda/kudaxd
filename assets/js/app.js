@@ -312,24 +312,46 @@
 
   function setupBeachAudio() {
     const audio = document.querySelector('#beachAmbience');
+    const muteToggle = document.querySelector('#muteToggle');
     if (!audio) return;
-    audio.volume = 0.34;
+
+    const savedMuted = (() => {
+      try { return localStorage.getItem('kudaBeachMuted') === 'true'; }
+      catch (_) { return false; }
+    })();
+
+    audio.volume = 0.11;
     audio.loop = true;
-    audio.muted = false;
     audio.preload = 'auto';
+    audio.muted = savedMuted;
+
+    const updateButton = () => {
+      if (!muteToggle) return;
+      const muted = audio.muted;
+      muteToggle.setAttribute('aria-pressed', String(muted));
+      muteToggle.setAttribute('aria-label', muted ? 'Unmute beach sounds' : 'Mute beach sounds');
+      const icon = muteToggle.querySelector('.mute-icon');
+      const text = muteToggle.querySelector('.mute-text');
+      if (icon) icon.textContent = muted ? '🔇' : '🔊';
+      if (text) text.textContent = muted ? 'Sound muted' : 'Beach sounds';
+    };
 
     let started = false;
     const start = () => {
+      if (audio.muted) {
+        updateButton();
+        return;
+      }
       if (started && !audio.paused) return;
       const promise = audio.play();
       if (promise?.then) {
-        promise.then(() => { started = true; }).catch(() => {});
+        promise.then(() => { started = true; updateButton(); }).catch(() => {});
       }
     };
 
     const unlock = () => {
       start();
-      if (!audio.paused) {
+      if (!audio.paused || audio.muted) {
         document.removeEventListener('pointerdown', unlock);
         document.removeEventListener('keydown', unlock);
         document.removeEventListener('touchstart', unlock);
@@ -339,7 +361,17 @@
       }
     };
 
+    if (muteToggle) {
+      muteToggle.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+        try { localStorage.setItem('kudaBeachMuted', String(audio.muted)); } catch (_) {}
+        if (!audio.muted) start();
+        updateButton();
+      });
+    }
+
     audio.addEventListener('canplay', start, { once: true });
+    updateButton();
     start();
     document.addEventListener('pointerdown', unlock, { passive: true });
     document.addEventListener('keydown', unlock);
@@ -349,7 +381,7 @@
     document.addEventListener('scroll', unlock, { passive: true, once: true });
 
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && audio.paused) start();
+      if (!document.hidden && audio.paused && !audio.muted) start();
     });
   }
 
