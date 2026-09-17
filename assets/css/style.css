@@ -201,18 +201,13 @@ button { font: inherit; }
   box-shadow: 0 14px 30px rgba(19,105,158,.22), inset 0 1px white;
 }
 .pixel-icon {
-  width: 34px;
-  height: 34px;
-  fill: currentColor;
+  width: 36px;
+  height: 36px;
+  display: block;
+  object-fit: contain;
   image-rendering: pixelated;
-  shape-rendering: crispEdges;
-  filter: drop-shadow(0 2px 0 rgba(255,255,255,.8));
-}
-.pixel-icon rect {
-  shape-rendering: crispEdges;
-}
-.pixel-icon .pixel-cutout {
-  fill: rgba(245,252,255,.82);
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 2px 0 rgba(255,255,255,.75));
 }
 
 .social-icon-button::before {
@@ -615,7 +610,7 @@ body.cursor-click .cursor-pointer img { scale: .86; }
   .hero-card > p { margin-top: 22px; font-size: 1.08rem; }
   .socials { margin-top: 28px; gap: 9px; }
   .social-icon-button { width: 53px; height: 53px; border-radius: 16px; }
-  .pixel-icon { width: 30px; height: 30px; }
+  .pixel-icon { width: 32px; height: 32px; }
   .scroll-cue { bottom: 16px; }
   footer { padding-inline: 18px; }
 }
