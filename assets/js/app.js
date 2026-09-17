@@ -246,9 +246,85 @@
     });
   }
 
+  function setupUISounds() {
+    if (!matchMedia('(pointer: fine)').matches) return;
+    const interactiveSelector = 'a, button, [role="button"]';
+    let ctx;
+    let hoverTarget = null;
+
+    function ensureAudio() {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      if (!ctx) ctx = new Ctx();
+      if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+      return ctx;
+    }
+
+    function playHoverSound() {
+      const audio = ensureAudio();
+      if (!audio) return;
+      const t = audio.currentTime + 0.005;
+      const osc1 = audio.createOscillator();
+      const osc2 = audio.createOscillator();
+      const gain = audio.createGain();
+      osc1.type = 'sine';
+      osc2.type = 'triangle';
+      osc1.frequency.setValueAtTime(640, t);
+      osc1.frequency.exponentialRampToValueAtTime(900, t + 0.06);
+      osc2.frequency.setValueAtTime(420, t);
+      osc2.frequency.exponentialRampToValueAtTime(560, t + 0.05);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.028, t + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audio.destination);
+      osc1.start(t); osc2.start(t);
+      osc1.stop(t + 0.1); osc2.stop(t + 0.1);
+    }
+
+    function playClickSound() {
+      const audio = ensureAudio();
+      if (!audio) return;
+      const t = audio.currentTime + 0.002;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(950, t);
+      osc.frequency.exponentialRampToValueAtTime(520, t + 0.03);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(0.022, t + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + 0.05);
+    }
+
+    document.addEventListener('pointerover', e => {
+      const target = e.target.closest(interactiveSelector);
+      if (!target || target === hoverTarget) return;
+      hoverTarget = target;
+      playHoverSound();
+    });
+
+    document.addEventListener('pointerout', e => {
+      const target = e.target.closest(interactiveSelector);
+      const goingTo = e.relatedTarget && e.relatedTarget.closest?.(interactiveSelector);
+      if (target && !goingTo && hoverTarget === target) hoverTarget = null;
+    });
+
+    document.addEventListener('pointerdown', e => {
+      if (e.button !== 0) return;
+      if (!e.target.closest(interactiveSelector)) return;
+      playClickSound();
+    });
+  }
+
   renderCards();
   setupReveal();
   setupParallax();
   setupCursor();
+  setupUISounds();
   document.querySelector('#year').textContent = new Date().getFullYear();
 })();

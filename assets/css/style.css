@@ -52,7 +52,7 @@ button { font: inherit; }
   min-height: 100svh;
   display: grid;
   place-items: center;
-  padding: 110px 22px 96px;
+  padding: 92px 22px 96px;
   overflow: hidden;
 }
 .topbar {
@@ -173,6 +173,16 @@ button { font: inherit; }
   font-size: clamp(1.15rem, 2vw, 1.45rem);
   font-weight: 850;
   letter-spacing: -.025em;
+}
+.hero-subline {
+  margin: 10px 0 0 !important;
+  max-width: 32ch;
+  color: #38698f !important;
+  font-size: clamp(.86rem, 1.35vw, 1rem) !important;
+  font-weight: 760 !important;
+  line-height: 1.35;
+  letter-spacing: -.01em;
+  opacity: .95;
 }
 .socials {
   display: flex;
@@ -603,7 +613,7 @@ body.cursor-click .cursor-pointer img { scale: .82; }
 
 
 @media (max-width: 760px) {
-  .hero { padding: 88px 14px 66px; }
+  .hero { padding: 78px 14px 66px; }
   .topbar { top: 12px; left: 12px; right: 12px; width: auto; }
   .top-pill { min-height: 38px; padding: 7px 11px; border-radius: 13px; font-size: .76rem; }
   .mini-k { width: 22px; height: 22px; }
