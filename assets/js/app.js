@@ -151,91 +151,6 @@
     if (e.key === 'Escape') closeVideo();
   });
 
-  function setupCarousel(root, { autoplay = 4200 } = {}) {
-    const viewport = root.querySelector('.carousel-viewport');
-    const cards = [...root.querySelectorAll('.video-card, .short-card')];
-    const prev = root.querySelector('.carousel-prev');
-    const next = root.querySelector('.carousel-next');
-    if (!viewport || !cards.length) return;
-
-    let index = 0;
-    let timer = null;
-    let resumeTimer = null;
-
-    function targetLeft(i) {
-      const card = cards[i];
-      const track = viewport.querySelector('.carousel-track');
-      const pad = track ? parseFloat(getComputedStyle(track).paddingLeft || '0') : 0;
-      return Math.max(0, card.offsetLeft - pad);
-    }
-
-    function markActive(i) {
-      index = ((i % cards.length) + cards.length) % cards.length;
-      cards.forEach((card, n) => card.classList.toggle('is-active', n === index));
-    }
-
-    function go(i, behavior = 'smooth') {
-      const nextIndex = ((i % cards.length) + cards.length) % cards.length;
-      markActive(nextIndex);
-      viewport.scrollTo({ left: targetLeft(nextIndex), behavior });
-    }
-
-    function stopAuto() {
-      if (timer) clearInterval(timer);
-      timer = null;
-      if (resumeTimer) clearTimeout(resumeTimer);
-      resumeTimer = null;
-    }
-
-    function startAuto(delay = autoplay) {
-      if (reducedMotion || cards.length < 2) return;
-      stopAuto();
-      resumeTimer = setTimeout(() => {
-        timer = setInterval(() => go(index + 1), autoplay);
-      }, delay);
-    }
-
-    prev?.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      stopAuto();
-      go(index - 1);
-      startAuto(6500);
-    });
-
-    next?.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      stopAuto();
-      go(index + 1);
-      startAuto(6500);
-    });
-
-    viewport.addEventListener('mouseenter', stopAuto);
-    viewport.addEventListener('mouseleave', () => startAuto(2500));
-    viewport.addEventListener('focusin', stopAuto);
-    viewport.addEventListener('focusout', () => startAuto(3500));
-    viewport.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        stopAuto();
-        go(index - 1);
-        startAuto(6000);
-      }
-      if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        stopAuto();
-        go(index + 1);
-        startAuto(6000);
-      }
-    });
-
-    addEventListener('resize', () => go(index, 'auto'), { passive: true });
-    markActive(0);
-    requestAnimationFrame(() => go(0, 'auto'));
-    startAuto(autoplay);
-  }
-
   function setupReveal() {
     const nodes = [...document.querySelectorAll('[data-reveal]')];
     nodes.forEach(node => node.style.setProperty('--delay', `${node.dataset.delay || 0}ms`));
@@ -332,9 +247,6 @@
   }
 
   renderCards();
-  document.querySelectorAll('[data-carousel]').forEach(root => {
-    setupCarousel(root, { autoplay: root.dataset.carousel === 'shorts' ? 5000 : 4300 });
-  });
   setupReveal();
   setupParallax();
   setupCursor();
